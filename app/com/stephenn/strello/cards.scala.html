@@ -1,0 +1,17 @@
+@(cards: List[com.stephenn.strello.Card])
+@import helper.twitterBootstrap._
+
+<h2>cards</h2>
+
+@for(card <- cards) {
+  <h2>@card.title</h2>
+}
+
+
+@helper.form(action = routes.Application.submit) {
+
+@helper.inputText(myForm("username"))
+
+@helper.inputPassword(myForm("password"))
+
+}
