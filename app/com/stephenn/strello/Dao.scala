@@ -9,4 +9,5 @@ trait Dao[T <: KeyedEntity[Long]] {
   def list = inTransaction { table.iterator.toList }
   def create(t: T) = inTransaction { table.insert(t) }
   def update(t: T) = inTransaction { table.update(t) }
+  def delete(t: T) = inTransaction { table.delete(t.id) }
 }

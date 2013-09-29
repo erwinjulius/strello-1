@@ -1,6 +1,5 @@
 package com.stephenn.strello
 
-
 import org.specs2.mutable._
 import org.specs2.runner._
 import org.junit.runner._
@@ -13,18 +12,46 @@ import org.squeryl._
 import org.squeryl.dsl._
 import org.squeryl.PrimitiveTypeMode._
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- * For more information, consult the wiki.
- */
 @RunWith(classOf[JUnitRunner])
 class DaoSpec extends Specification {
+  def dao = CardController.dao
   
+  def fakeApp[T](block:  => T):T = running(FakeApplication(additionalConfiguration = inMemoryDatabase()))(block)
   
   "Dao" should {
-    "insert the item" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      CardController.dao.list.size must equalTo(0)
+    "create" in fakeApp {
+      dao.list.isEmpty must equalTo(true)
+      
+      val in = Card(-1, "test note")
+      val out = dao.create(in)
+      
+      out.id must not equalTo(-1)
+    }
+    
+    "list" in fakeApp {
+      dao.list.isEmpty must equalTo(true)
+      
+      dao.create(Card(-1, "test note"))
+      
+      val l = dao.list
+      l.size must equalTo(1)
+      l(0).title must equalTo("test note")
+    }
+    
+    "update" in fakeApp {
+      val created = dao.create(Card(-1, "test note"))
+      dao.update(created.copy(title = "updated note"))
+      
+      val l = dao.list
+      l.size must equalTo(1)
+      l(0).title must equalTo("updated note")
+    }
+    
+    "delete" in fakeApp {
+      val created = dao.create(Card(-1, "test note"))
+      dao.delete(created)
+      
+      dao.list.isEmpty must equalTo(true)
     }
   }
 }
