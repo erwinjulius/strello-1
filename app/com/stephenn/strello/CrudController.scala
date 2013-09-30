@@ -4,6 +4,7 @@ import play.api.mvc.Controller
 import play.api.libs.json._
 import play.api.mvc.Action
 import org.squeryl.KeyedEntity
+import play.api.mvc.SimpleResult
 
 trait CrudController[T <: KeyedEntity[Long]] extends Controller {
   def dao: Dao[T]
@@ -13,19 +14,31 @@ trait CrudController[T <: KeyedEntity[Long]] extends Controller {
   def list = Action { implicit request =>
     Ok(Json.toJson(dao.list))
   }
-
-  def create = Action(parse.json) { implicit request =>
+  
+  def withT(block: (T) => SimpleResult) = Action(parse.json)  { implicit request =>
     Json.fromJson[T](request.body).fold(
       invalid = { errors => BadRequest("" + errors) },
-      valid = { t =>
-        val created = dao.create(t);
-        Ok(Json.toJson(created))
-      })
+      valid = block(_)
+      )
   }
   
-  def update = Action(parse.json) { implicit request =>
-    Json.fromJson[T](request.body).fold(
-      invalid = { errors => BadRequest("" + errors) },
-      valid = { res => dao.update(res); Accepted })
+  def create = withT { t =>
+    val created = dao.create(t);
+    Ok(Json.toJson(created))
+  }
+  
+  def update = withT { t =>
+    dao.update(t);
+    Accepted
+  }
+  
+  def delete(id: Long) = Action(parse.anyContent) { implicit request =>
+    dao.get(id) match {
+      case t => {
+        dao.delete(t);
+        Accepted
+      }
+      case _ => NotFound
+    }
   }
 }

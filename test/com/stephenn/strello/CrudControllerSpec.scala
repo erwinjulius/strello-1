@@ -1,6 +1,5 @@
 package com.stephenn.strello
 
-
 import org.specs2.mutable._
 import org.specs2.runner._
 import org.junit.runner._
@@ -20,28 +19,26 @@ import org.squeryl.PrimitiveTypeMode._
  */
 @RunWith(classOf[JUnitRunner])
 class CrudControllerSpec extends Specification {
-  
-  
+  def controller = CardController
+
   "CrudController" should {
-    
+
     "insert the item" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      inTransaction {
-        val controller = CardController
-        
-        
-        
-        AppDB.cards.iterator.toList.size must equalTo(0)
-      }
+      val controller = CardController
+
+      controller.create
+
+//      FakeRequest(POST, "").withBody(body)
+
+      0 must equalTo(0)
     }
-    
-    
-    
+
     "get the item" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
       inTransaction {
         AppDB.cards.iterator.toList.size must equalTo(0)
       }
     }
-    
+
   }
 
 }
