@@ -6,9 +6,10 @@ import org.squeryl.PrimitiveTypeMode._
 
 trait Dao[T <: KeyedEntity[Long]] {
   val table: Table[T]
-  def get(id: Long) = table.get(id)
+  
+  def get(id: Long) = inTransaction { table.where(t => t.id === id).headOption }
   def list = inTransaction { table.iterator.toList }
   def create(t: T) = inTransaction { table.insert(t) }
   def update(t: T) = inTransaction { table.update(t) }
-  def delete(t: T) = inTransaction { table.delete(t.id) }
+  def delete(id: Long) = inTransaction { table.delete(id) }
 }

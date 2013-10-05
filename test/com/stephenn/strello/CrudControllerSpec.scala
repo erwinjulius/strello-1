@@ -19,26 +19,21 @@ import org.squeryl.PrimitiveTypeMode._
  */
 @RunWith(classOf[JUnitRunner])
 class CrudControllerSpec extends Specification {
-  def controller = CardController
-
+  
   "CrudController" should {
+    def ctrl = CardController
 
-    "insert the item" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      val controller = CardController
+    "insert" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      val js = Json.parse("""{"id":-1, "title":"bla"}""")
 
-      controller.create
-
-//      FakeRequest(POST, "").withBody(body)
-
-      0 must equalTo(0)
+      val res = ctrl.create(FakeRequest(POST, "", FakeHeaders(), js))
+      status(res) must equalTo(200)
     }
-
-    "get the item" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-      inTransaction {
-        AppDB.cards.iterator.toList.size must equalTo(0)
-      }
+    
+    "delete handles 404" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+      val res = ctrl.delete(1)(FakeRequest(DELETE, ""))
+      
+      status(res) must equalTo(404)
     }
-
   }
-
 }

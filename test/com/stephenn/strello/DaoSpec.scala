@@ -49,9 +49,17 @@ class DaoSpec extends Specification {
     
     "delete" in fakeApp {
       val created = dao.create(Card(-1, "test note"))
-      dao.delete(created)
+      val res = dao.delete(created.id)
+      
+      res must equalTo(true)
+      
       
       dao.list.isEmpty must equalTo(true)
+    }
+    
+    "delete on unsaved" in fakeApp {
+      val res = dao.delete(99l)
+      res must equalTo(false)
     }
   }
 }

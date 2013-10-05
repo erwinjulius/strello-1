@@ -23,21 +23,18 @@ trait CrudController[T <: KeyedEntity[Long]] extends Controller {
   }
   
   def create = withT { t =>
-    val created = dao.create(t);
+    val created = dao.create(t)
     Ok(Json.toJson(created))
   }
   
-  def update = withT { t =>
-    dao.update(t);
+  def update(id: Long) = withT { t =>
+    dao.update(t)
     Accepted
   }
   
   def delete(id: Long) = Action(parse.anyContent) { implicit request =>
-    dao.get(id) match {
-      case t => {
-        dao.delete(t);
-        Accepted
-      }
+    dao.delete(id) match {
+      case true => Accepted
       case _ => NotFound
     }
   }
