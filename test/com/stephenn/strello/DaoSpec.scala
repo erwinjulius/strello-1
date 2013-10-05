@@ -40,7 +40,9 @@ class DaoSpec extends Specification {
     
     "update" in fakeApp {
       val created = dao.create(Card(-1, "test note"))
-      dao.update(created.copy(title = "updated note"))
+      val res = dao.update(created.copy(title = "updated note"))
+      
+      res must equalTo(true)
       
       val l = dao.list
       l.size must equalTo(1)

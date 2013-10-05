@@ -28,13 +28,15 @@ trait CrudController[T <: KeyedEntity[Long]] extends Controller {
   }
   
   def update(id: Long) = withT { t =>
-    dao.update(t)
-    Accepted
+    dao.update(t) match {
+      case true => Accepted
+      case false => NotFound
+    }
   }
   
   def delete(id: Long) = Action(parse.anyContent) { implicit request =>
     dao.delete(id) match {
-      case true => Accepted
+      case true => Ok
       case _ => NotFound
     }
   }
